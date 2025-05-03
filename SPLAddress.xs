@@ -22,7 +22,7 @@ check_pub_address_is_ok(SV* address)
         }
         if (len != 32) croak("owner must be 32 bytes long");
 
-        RETVAL = ge_frombytes_vartime(tmp);
+        RETVAL = ge_frombytes_vartime(tmp) != -1;
     }
     OUTPUT:
         RETVAL

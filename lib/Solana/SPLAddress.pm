@@ -4,33 +4,36 @@ use 5.034000;
 use strict;
 use warnings;
 
-require Exporter;
-
-our @ISA = qw(Exporter);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Solana::SPLAddress ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
 our $VERSION = '0.01';
+use Carp qw(croak);
+use constant PDA_MAKER => "ProgramDerivedAddress";
+use Digest::SHA qw(sha256);
 
 require XSLoader;
 XSLoader::load('Solana::SPLAddress', $VERSION);
 
-# Preloaded methods go here.
+sub find_address {
+    my ($seeds, $program_id) = @_;
+
+    my $seed = join "", @$seeds;
+    for my $bump ( reverse(0..255) ) {
+        my $address = create_address($seed, $program_id, $bump);
+        if (defined $address) {
+            return ($address, $bump);
+        }
+    }
+    croak "Failed to generate SPL address";
+}
+
+sub create_address {
+    my ($seed, $program_id, $bump) = @_;
+    $seed .=  pack("C", $bump) . $program_id . PDA_MAKER;
+    my $hash = sha256($seed);
+    if (check_pub_address_is_ok($hash)) {
+        return unpack('H*', $hash);
+    }
+    return undef;
+}
 
 1;
 __END__
@@ -59,24 +62,13 @@ None by default.
 
 
 
-=head1 SEE ALSO
-
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
-
 =head1 AUTHOR
 
-dfisher, E<lt>dfisher@E<gt>
+Denys Fisher, E<lt>shmakins at gmail dot comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2025 by dfisher
+Copyright (C) 2025 by Denys Fisher
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.38.2 or,
