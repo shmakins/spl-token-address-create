@@ -46,20 +46,21 @@ Solana::SPLAddress - Perl extension for creating deterministic Solana token addr
 
   use Solana::SPLAddress;
 
-=head1 DESCRIPTION
-
 =head1 METHODS
 
+=over 4
 
-=method create_address($seed, $program_id, $bump)
+=item create_address($seed, $program_id, $bump)
 
     create address from seed, program_id and bump
     used to recover already generated address
 
-=method find_address($seeds, $program_id)
+=item find_address($seeds, $program_id)
 
     find address from seeds and program_id
     returns address and bump
+
+=cut
 
 =head1 AUTHOR
 
