@@ -37,30 +37,29 @@ sub create_address {
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-Solana::SPLAddress - Perl extension for blah blah blah
+Solana::SPLAddress - Perl extension for creating deterministic Solana token addresses
 
 =head1 SYNOPSIS
 
   use Solana::SPLAddress;
-  blah blah blah
 
 =head1 DESCRIPTION
 
-Stub documentation for Solana::SPLAddress, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
-
-=head2 EXPORT
-
-None by default.
+=head1 METHODS
 
 
+=method create_address($seed, $program_id, $bump)
+
+    create address from seed, program_id and bump
+    used to recover already generated address
+
+=method find_address($seeds, $program_id)
+
+    find address from seeds and program_id
+    returns address and bump
 
 =head1 AUTHOR
 
