@@ -10,14 +10,23 @@ use warnings;
 
 use Test::More tests => 3;
 BEGIN { use_ok('Solana::SPLAddress') };
-use feature 'say';
-my $owner_bin = pack("H*", "4f095ac26ce0478b05c698697a0420ce5d57ea6de473ac55baefd4e72dc68cdc");
-my $mint_usdc = pack("H*", "cfc3059718cccbafeaa32131ae6360fdff9dcff0f0cfe383b3926db1c203fd82");
-my $token_address = pack("H*", "06ddf6e1d765a193d9cbe146ceeb79ac1cb485ed5f5b37913a8cf5857eff00a9");
 
-my ($address, $bump) = Solana::SPLAddress::find_address([$owner_bin, $token_address], $mint_usdc);
+my ($wallet_address,
+   $token_mint_address,
+   $token_program_id,
+   $associated_token_address,
+)
+    = map { pack("H*", $_) } qw(
+    aa847fcdf9577b25ff09b48597bfc1d958aa87d3f0aab7e8b312c17d6ea26287
+    c6fa7af3bedbad3a3d65f36aabc97431b1bbe4c2d2f6e0e47ca60203452f5d61
+    06ddf6e1d765a193d9cbe146ceeb79ac1cb485ed5f5b37913a8cf5857eff00a9
+    8c97258f4e2489f1bb3d1029148e0d830b5a1399daff1084048e7bd8dbe9f859
+);
 
-ok($address, "Address found");
-ok($bump, "Bump found");
+my $expected_token_address = "8601b82db84efead60d866626c8624897d8d8bf1ecacaebf564a6c7255565775";
+
+my ($address, $bump) = Solana::SPLAddress::find_address([$wallet_address, $token_program_id, $token_mint_address], $associated_token_address);
+is($address, $expected_token_address, "Address found");
+is($bump, 255, "bump is found");
 
 

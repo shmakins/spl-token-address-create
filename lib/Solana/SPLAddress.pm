@@ -4,10 +4,10 @@ use 5.034000;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use Carp qw(croak);
 use constant PDA_MAKER => "ProgramDerivedAddress";
-use Digest::SHA qw(sha256);
+use Digest::SHA;
 
 require XSLoader;
 XSLoader::load('Solana::SPLAddress', $VERSION);
@@ -15,9 +15,8 @@ XSLoader::load('Solana::SPLAddress', $VERSION);
 sub find_address {
     my ($seeds, $program_id) = @_;
 
-    my $seed = join "", @$seeds;
     for my $bump ( reverse(0..255) ) {
-        my $address = create_address($seed, $program_id, $bump);
+        my $address = create_address($seeds, $bump, $program_id);
         if (defined $address) {
             return ($address, $bump);
         }
@@ -26,10 +25,17 @@ sub find_address {
 }
 
 sub create_address {
-    my ($seed, $program_id, $bump) = @_;
-    $seed .=  pack("C", $bump) . $program_id . PDA_MAKER;
-    my $hash = sha256($seed);
-    if (check_pub_address_is_ok($hash)) {
+    my ($seeds, $bump, $program_id) = @_;
+    my $sha = Digest::SHA->new(256);
+    for my $seed (@$seeds) {
+        $sha->add($seed);
+    }
+    $sha->add(pack("C", $bump));
+    $sha->add($program_id);
+    $sha->add(PDA_MAKER);
+
+    my $hash = $sha->digest;
+    if (!check_pub_address_is_ok($hash)) {
         return unpack('H*', $hash);
     }
     return undef;
